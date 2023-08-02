@@ -1,0 +1,144 @@
+void CDIPFWDoc::OnPointprocessingDct()
+{
+	int i, j, a, b, u;
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	BYTE** pImg = CreateResultImage(m_nWidth, m_nHeight);
+	double tmp_img[256][256];
+
+
+	for (i = 0; i < 256; i++) {
+		for (j = 0; j < 256; j++) {
+			tmp_img[i][j] = 0;
+		}
+	}
+
+	for (a = 0; a < m_nHeight; a++) {
+		for (b = 0; b < m_nWidth; b++) {
+			pImg[a][b] = m_pImgOpen[a][b];
+		}
+	}
+	double pi = 3.14;
+	double b_fun[256][256];
+	double bt_fun[256][256]; // 행 렬 위치 변환
+
+	//기저함수 생성
+	for (i = 0; i < m_nHeight; i++) {
+		u = i;
+		for (j = 0; j < m_nWidth; j++) {
+			if (u == i) {
+				b_fun[i][j] = (double)(sqrt(1.0 / 256.0))*cos((2.0*i + 1.0)*j*pi / (2.0 * 256.0));
+				bt_fun[j][i] = (double)b_fun[i][j];
+			}
+			else {
+				b_fun[i][j] = (double)(sqrt(2.0 / 256.0))*cos((2.0*i + 1.0)*j*pi / (2.0 * 256.0));
+				bt_fun[j][i] = (double)b_fun[i][j];
+			}
+		}
+	}
+
+	//b*f
+	for (i = 0; i < 256; i++) {
+		for (j = 0; j < 256; j++) {
+			for (int k = 0; k < 256; k++) {
+				tmp_img[i][j] += (double)b_fun[i][k] * (double)m_pImgOpen[k][j];
+			}
+		}
+	}
+
+	//f*bt
+	for (i = 0; i < 256; i++) {
+		for (j = 0; j < 256; j++) {
+			for (int k = 0; k < 256; k++) {
+				pImg[i][j] += (double)tmp_img[i][k] * (double)bt_fun[k][j];
+
+			}
+		}
+	}
+	MakeNewWindow(pImg, m_nWidth, m_nHeight);
+}
+
+
+void CDIPFWDoc::OnPointprocessingIdct()
+{
+	int i, j, a, b, u;
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	BYTE** pImg = CreateResultImage(m_nWidth, m_nHeight);
+	double tmp_img[256][256];
+
+
+	for (i = 0; i < 256; i++) {
+		for (j = 0; j < 256; j++) {
+			tmp_img[i][j] = 0;
+		}
+	}
+
+	for (a = 0; a < m_nHeight; a++) {
+		for (b = 0; b < m_nWidth; b++) {
+			pImg[a][b] = m_pImgOpen[a][b];
+		}
+	}
+	double pi = 3.14;
+	double b_fun[256][256];
+	double bt_fun[256][256]; // 행 렬 위치 변환
+
+	//기저함수 생성
+	for (i = 0; i < m_nHeight; i++) {
+		u = i;
+		for (j = 0; j < m_nWidth; j++) {
+			if (u == i) {
+				b_fun[i][j] = (double)(sqrt(1.0 / 256.0))*cos((2.0*i + 1.0)*j*pi / (2.0 * 256.0));
+				bt_fun[j][i] = (double)b_fun[i][j];
+			}
+			else {
+				b_fun[i][j] = (double)(sqrt(2.0 / 256.0))*cos((2.0*i + 1.0)*j*pi / (2.0 * 256.0));
+				bt_fun[j][i] = (double)b_fun[i][j];
+			}
+		}
+	}
+
+	//b*f
+	for (i = 0; i < 256; i++) {
+		for (j = 0; j < 256; j++) {
+			for (int k = 0; k < 256; k++) {
+				tmp_img[i][j] += (double)b_fun[i][k] * (double)m_pImgOpen[k][j];
+			}
+		}
+	}
+
+	//f*bt
+	for (i = 0; i < 256; i++) {
+		for (j = 0; j < 256; j++) {
+			for (int k = 0; k < 256; k++) {
+				pImg[i][j] += (double)tmp_img[i][k] * (double)bt_fun[k][j];
+
+			}
+		}
+	}
+
+	// idct
+	for (i = 0; i < 256; i++) {
+		for (j = 0; j < 256; j++) {
+			tmp_img[i][j] = 0;
+		}
+	}
+	//bt*f
+	for (i = 0; i < 256; i++) {
+		for (j = 0; j < 256; j++) {
+			for (int k = 0; k < 256; k++) {
+				tmp_img[i][j] += (double)bt_fun[i][k] * m_pImgOpen[k][j];
+			}
+		}
+	}
+
+
+	//f*b
+	for (i = 0; i < 256; i++) {
+		for (j = 0; j < 256; j++) {
+			for (int k = 0; k < 256; k++) {
+				pImg[i][j] = (double)tmp_img[i][k] * b_fun[k][j];
+			}
+		}
+	}
+
+	MakeNewWindow(pImg, m_nWidth, m_nHeight);
+}
